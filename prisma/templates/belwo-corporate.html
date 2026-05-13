@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BelWo Rate Card — {{clientName}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #333; }
+    .page { width: 297mm; height: 210mm; padding: 15mm 12mm; }
+    .header { display: flex; align-items: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 8px; margin-bottom: 12px; }
+    .header img { height: 32px; }
+    .header .title { flex: 1; text-align: right; font-size: 16px; font-weight: bold; color: #1e3a5f; }
+    .client-line { color: #666; font-size: 11px; margin-bottom: 10px; }
+    .client-line strong { color: #1e3a5f; }
+    .client-line .valid { float: right; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+    th { background: #1e3a5f; color: #fff; padding: 4px 6px; text-align: left; font-size: 10px; }
+    td { padding: 3px 6px; border-bottom: 1px solid #ddd; font-size: 10px; }
+    td.rate { text-align: right; }
+    .section-title { font-size: 13px; font-weight: bold; color: #1e3a5f; margin: 12px 0 4px; border-bottom: 2px solid #f47920; padding-bottom: 2px; }
+    .billing { margin-top: 14px; padding: 8px; background: #f8f9fa; border-left: 3px solid #f47920; font-size: 10px; }
+    .footer { margin-top: 10px; text-align: center; font-size: 9px; color: #999; }
+    .blended-note { font-size: 9px; color: #666; margin-top: 2px; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <img src="{{logoBase64}}" alt="BelWo">
+      <div class="title">Rate Card</div>
+    </div>
+    <div class="client-line">
+      Prepared for: <strong>{{clientName}}</strong>
+      {{#validUntil}}<span class="valid">Valid until: {{validUntil}}</span>{{/validUntil}}
+    </div>
+
+    {{#blendedEnabled}}
+    <div class="section-title">Blended Rates</div>
+    <p class="blended-note">Rates per hour — applicable across all roles at the blended level shown.</p>
+    <table>
+      <tr><th>Experience</th><th>Offshore ($/hr)</th><th>Onshore ($/hr)</th></tr>
+      <tr><td>0–6 months</td><td class="rate">${{blendedOffshore0to6}}</td><td class="rate">${{blendedOnshore0to6}}</td></tr>
+      <tr><td>6–12 months</td><td class="rate">${{blendedOffshore6to12}}</td><td class="rate">${{blendedOnshore6to12}}</td></tr>
+      <tr><td>12+ months</td><td class="rate">${{blendedOffshore12plus}}</td><td class="rate">${{blendedOnshore12plus}}</td></tr>
+    </table>
+    {{/blendedEnabled}}
+
+    {{#perRoleEnabled}}
+    <div class="section-title">Per-Role Rates</div>
+    <table>
+      <tr><th>Role</th><th colspan="3" style="text-align:center">Offshore ($/hr)</th><th colspan="3" style="text-align:center">Onshore ($/hr)</th></tr>
+      <tr><th></th><th>0–6m</th><th>6–12m</th><th>12m+</th><th>0–6m</th><th>6–12m</th><th>12m+</th></tr>
+      {{#perRoleRows}}
+      <tr>
+        <td>{{label}}</td>
+        <td class="rate">${{off0to6}}</td><td class="rate">${{off6to12}}</td><td class="rate">${{off12plus}}</td>
+        <td class="rate">${{on0to6}}</td><td class="rate">${{on6to12}}</td><td class="rate">${{on12plus}}</td>
+      </tr>
+      {{/perRoleRows}}
+    </table>
+    {{/perRoleEnabled}}
+
+    {{#flatRateEnabled}}
+    <div class="section-title">Flat-Rate Roles</div>
+    <table>
+      <tr><th>Role</th><th>Offshore ($/hr)</th><th>Onshore ($/hr)</th></tr>
+      {{#flatRateRows}}
+      <tr><td>{{label}}</td><td class="rate">${{offshore}}</td><td class="rate">${{onshore}}</td></tr>
+      {{/flatRateRows}}
+    </table>
+    {{/flatRateEnabled}}
+
+    {{#billingEnabled}}
+    <div class="billing">
+      <strong>Billing Terms</strong><br>
+      Net {{netPayment}} days from invoice date. Late payment subject to {{lateFee}}% monthly interest.
+    </div>
+    {{/billingEnabled}}
+
+    <div class="footer">BelWo Inc. — Confidential — &copy; {{year}} BelWo Inc. All rights reserved.</div>
+  </div>
+</body>
+</html>
