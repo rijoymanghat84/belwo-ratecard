@@ -1,7 +1,7 @@
 # syntax=docker.io/docker/dockerfile:1
 
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat bash
 
 # deps
 FROM base AS deps
@@ -35,6 +35,17 @@ RUN chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/adapter-pg ./node_modules/@prisma/adapter-pg
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/pg ./node_modules/pg
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/tsx ./node_modules/tsx
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # puppeteer + chromium
 RUN apk add --no-cache \
@@ -53,4 +64,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["node", "server.js"]
