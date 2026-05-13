@@ -1,9 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function DashboardPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-[#1e3a5f] mb-6">Dashboard</h1>
+      <div className="flex items-center gap-4 mb-8">
+        <Image src="/belwo-logo.png" alt="BelWo" width={120} height={30} />
+        <h1 className="text-2xl font-bold text-[#1e3a5f]">Dashboard</h1>
+      </div>
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-white rounded-lg shadow-sm border p-5">
           <div className="text-3xl font-bold text-[#1e3a5f]">—</div>

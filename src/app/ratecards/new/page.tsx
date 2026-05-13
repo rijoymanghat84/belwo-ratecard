@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type N3 = [number, number, number];
 
@@ -166,7 +167,10 @@ export default function NewRateCardPage() {
     <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-y-auto p-6">
-        <h1 className="text-2xl font-bold text-[#1e3a5f] mb-6">New Rate Card</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <Image src="/belwo-logo.png" alt="BelWo" width={120} height={30} />
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">New Rate Card</h1>
+        </div>
 
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>}
 

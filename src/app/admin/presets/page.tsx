@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 interface Role {
   key: string;
@@ -125,7 +126,10 @@ export default function AdminPresetsPage() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[#1e3a5f]">Rate Preset Manager</h1>
+        <div className="flex items-center gap-4">
+          <Image src="/belwo-logo.png" alt="BelWo" width={120} height={30} />
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">Rate Preset Manager</h1>
+        </div>
         <button
           onClick={handleSave}
           disabled={saving}

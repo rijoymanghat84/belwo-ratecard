@@ -1,9 +1,10 @@
-// Seed: default BelWo 2026 preset + BelWo Corporate template
+// Seed: default BelWo 2026 preset + BelWo Corporate template + demo rate card
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { hashSync } from "bcryptjs";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -57,22 +58,87 @@ const BELWO_2026_PRESET = {
 };
 
 async function seed() {
-  const existing = await prisma.ratePreset.findFirst({ where: { isDefault: true } });
-  if (existing) { console.log("Default preset already exists. Skipping."); return; }
+  let presetId: string | null = null;
+  let templateId: string | null = null;
+  let userId: string | null = null;
 
-  await prisma.ratePreset.create({ data: BELWO_2026_PRESET });
-  console.log("✅ Created default preset: BelWo 2026 Default");
+  // --- Preset ---
+  const existingPreset = await prisma.ratePreset.findFirst({ where: { isDefault: true } });
+  if (existingPreset) {
+    presetId = existingPreset.id;
+    console.log("⏭️  Preset already exists. Skipping.");
+  } else {
+    const preset = await prisma.ratePreset.create({ data: BELWO_2026_PRESET });
+    presetId = preset.id;
+    console.log("✅ Created default preset: BelWo 2026 Default");
+  }
 
-  await prisma.template.create({
-    data: {
-      name: "BelWo Corporate",
-      description: "BelWo corporate rate card design with navy & orange branding",
-      htmlContent: BELWO_TEMPLATE_HTML,
-      cssContent: BELWO_TEMPLATE_CSS,
-      isActive: true,
-    },
-  });
-  console.log("✅ Created template: BelWo Corporate");
+  // --- Template ---
+  const existingTemplate = await prisma.template.findFirst({ where: { isActive: true } });
+  if (existingTemplate) {
+    templateId = existingTemplate.id;
+    console.log("⏭️  Template already exists. Skipping.");
+  } else {
+    const template = await prisma.template.create({
+      data: {
+        name: "BelWo Corporate",
+        description: "BelWo corporate rate card design with navy & orange branding",
+        htmlContent: BELWO_TEMPLATE_HTML,
+        cssContent: BELWO_TEMPLATE_CSS,
+        isActive: true,
+      },
+    });
+    templateId = template.id;
+    console.log("✅ Created template: BelWo Corporate");
+  }
+
+  // --- Demo Admin User (auth bypassed, just for ownership) ---
+  const existingUser = await prisma.user.findUnique({ where: { email: "admin@belwo.com" } });
+  if (existingUser) {
+    userId = existingUser.id;
+    console.log("⏭️  Admin user already exists. Skipping.");
+  } else {
+    const user = await prisma.user.create({
+      data: {
+        email: "admin@belwo.com",
+        passwordHash: hashSync("belwo2026", 10),
+        name: "BelWo Admin",
+        role: "ADMIN",
+      },
+    });
+    userId = user.id;
+    console.log("✅ Created demo admin: admin@belwo.com / belwo2026");
+  }
+
+  // --- Demo Rate Card ---
+  const existingCard = await prisma.rateCard.findFirst({ where: { clientName: "Acme Corporation (Demo)" } });
+  if (existingCard) {
+    console.log("⏭️  Demo rate card already exists. Skipping.");
+  } else if (templateId && userId && presetId) {
+    const card = await prisma.rateCard.create({
+      data: {
+        clientName: "Acme Corporation (Demo)",
+        templateId,
+        config: BELWO_2026_PRESET.config,
+        validUntil: new Date("2026-12-31"),
+        status: "draft",
+        userId,
+      },
+    });
+    // Initial version
+    await prisma.rateCardVersion.create({
+      data: {
+        rateCardId: card.id,
+        version: 1,
+        config: BELWO_2026_PRESET.config,
+      },
+    });
+    console.log(`✅ Created demo rate card: Acme Corporation (Demo) — /ratecards/${card.id}`);
+  } else {
+    console.log("⚠️  Could not create demo card — missing prerequisite IDs");
+  }
+
+  console.log("\n🌱 Seed complete.");
 }
 
 seed()

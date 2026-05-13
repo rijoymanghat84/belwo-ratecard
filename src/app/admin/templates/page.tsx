@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 
 interface Template {
   id: string;
@@ -125,7 +126,10 @@ export default function AdminTemplatesPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
         <div className="p-4 border-b">
-          <h1 className="text-lg font-bold text-[#1e3a5f]">Templates</h1>
+          <div className="flex items-center gap-2">
+            <Image src="/belwo-logo.png" alt="BelWo" width={80} height={20} />
+            <h1 className="text-lg font-bold text-[#1e3a5f]">Templates</h1>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {templates.map((t) => (

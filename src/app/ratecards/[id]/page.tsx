@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function RateCardViewPage() {
   const params = useParams();
@@ -21,11 +22,15 @@ export default function RateCardViewPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Image src="/belwo-logo.png" alt="BelWo" width={120} height={30} />
+        <h1 className="text-2xl font-bold text-[#1e3a5f]">Rate Card</h1>
+      </div>
       <button onClick={() => router.back()} className="text-sm text-[#f47920] hover:underline mb-4">← Back</button>
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#1e3a5f]">{card.clientName}</h1>
+            <h2 className="text-2xl font-bold text-[#1e3a5f]">{card.clientName}</h2>
             <p className="text-sm text-gray-500">Template: {card.template?.name}</p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -40,7 +45,7 @@ export default function RateCardViewPage() {
         )}
 
         <div className="border-t pt-4">
-          <h2 className="font-semibold text-[#1e3a5f] mb-2">Versions</h2>
+          <h3 className="font-semibold text-[#1e3a5f] mb-2">Versions</h3>
           <div className="space-y-2">
             {card.versions?.map((v: any) => (
               <div key={v.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded text-sm">
