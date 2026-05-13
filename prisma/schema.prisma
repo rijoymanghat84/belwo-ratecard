@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  VIEWER
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  totpSecret    String?
+  totpEnabled   Boolean    @default(false)
+  name          String
+  role          UserRole   @default(USER)
+  rateCards     RateCard[]
+  invoices      Invoice[]
+  fixedBids      FixedBid[]
+  createdAt     DateTime   @default(now())
+}
+
+model RatePreset {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  config        Json
+  isDefault     Boolean   @default(false)
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Template {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  htmlContent String
+  cssContent  String
+  isActive    Boolean   @default(true)
+  rateCards   RateCard[]
+  createdAt   DateTime  @default(now())
+}
+
+model RateCard {
+  id           String            @id @default(cuid())
+  clientName   String
+  templateId   String
+  template     Template          @relation(fields: [templateId], references: [id])
+  config       Json
+  validUntil   DateTime?
+  status       String            @default("draft")
+  userId       String
+  createdBy    User              @relation(fields: [userId], references: [id])
+  versions     RateCardVersion[]
+  invoices     Invoice[]
+  fixedBids    FixedBid[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model RateCardVersion {
+  id          String   @id @default(cuid())
+  version     Int
+  config      Json
+  pdfPath     String?
+  rateCardId  String
+  rateCard    RateCard @relation(fields: [rateCardId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  invoiceNum  String   @unique
+  rateCardId  String
+  rateCard    RateCard @relation(fields: [rateCardId], references: [id])
+  config      Json
+  subtotal    Float
+  totalAmount Float
+  pdfPath     String?
+  validUntil  DateTime?
+  userId      String
+  createdBy   User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model FixedBid {
+  id          String   @id @default(cuid())
+  projectName String
+  rateCardId  String
+  rateCard    RateCard @relation(fields: [rateCardId], references: [id])
+  config      Json
+  riskPercent Float    @default(10)
+  subtotal    Float
+  riskAmount  Float
+  totalAmount Float
+  pdfPath     String?
+  userId      String
+  createdBy   User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}

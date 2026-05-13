@@ -1,0 +1,24 @@
+# deps
+node_modules/
+
+# env
+.env
+.env*.local
+
+# next.js
+.next/
+
+# prisma
+prisma/migrations/
+
+# build
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
