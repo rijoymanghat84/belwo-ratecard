@@ -3,40 +3,40 @@
 FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat
 
-# Install dependencies only when needed
+# deps
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Rebuild the source code only when needed
+# builder
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate
 RUN npm run build
 
-# Production image, copy all the files and run next
+# runner
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
+RUN mkdir -p .next
 RUN chown nextjs:nodejs .next
 
-# Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Puppeteer dependencies
+# puppeteer + chromium
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -49,9 +49,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 USER nextjs
-
 EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
