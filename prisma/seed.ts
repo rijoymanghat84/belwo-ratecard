@@ -1,4 +1,5 @@
 // Seed: default BelWo 2026 preset + BelWo Corporate template + demo rate card
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
